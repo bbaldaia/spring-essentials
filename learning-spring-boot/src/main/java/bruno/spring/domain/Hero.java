@@ -1,24 +1,28 @@
 package bruno.spring.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
+@AllArgsConstructor
 public class Hero {
     private Long id;
+    @JsonProperty("hero_name")
     private String name;
+    private static List<Hero> heroes = new ArrayList<>();
 
-    public Hero(long id, String name) {
-        this.id = id;
-        this.name = name;
+    static {
+        heroes.add(new Hero(1L, "Hero 1"));
+        heroes.add(new Hero(2L, "Hero 2"));
     }
 
-    public static List<Hero> listHeroes() {
-        return List.of
-                (new Hero(1, "Goku"),
-                 new Hero(2, "Vegeta"),
-                 new Hero(3, "Gohan")
-                );
+    public static List<Hero> listAllHeros() {
+        return heroes;
     }
 }

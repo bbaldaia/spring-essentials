@@ -1,56 +1,37 @@
 package bruno.spring.controller;
 
 import bruno.spring.domain.Hero;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
 @RequestMapping("v1/heroes")
+@Slf4j
 public class HeroController {
-    private static final List<String> HEROES = List.of("Hero1", "Hero2", "Hero3");
+    private static List<Hero> heroes = new ArrayList<>(Hero.listAllHeros());
 
-    @GetMapping("listAll")
-    public List<String> listAllHeroes() {
-        return HEROES;
+    @GetMapping
+    public List<Hero> listAllHeros() {
+        return heroes;
     }
 
-    @GetMapping("filter")
-    public List<String> listHeroesFilter(@RequestParam String name) {
-        return HEROES.stream().filter(hero -> hero.equalsIgnoreCase(name)).toList();
+    @PostMapping
+    public Hero saveHero(@RequestBody Hero hero) {
+        hero.setId(ThreadLocalRandom.current().nextLong(100));
+        heroes.add(hero);
+
+        return hero;
     }
 
-    @GetMapping("filterParam")
-    public List<String> listHeroesFilterParam(@RequestParam List<String> name) {
-        return HEROES.stream().filter(name::contains).toList();
-    }
+    @PostMapping(value = "/testingHeaders", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Hero> test(@RequestBody Hero hero) {
 
-    @GetMapping("filterParam/{hero}")
-    public String findByHero(@PathVariable String hero) {
-        return HEROES
-                .stream()
-                .filter(x -> x.equalsIgnoreCase(hero))
-                .findFirst().orElse("CAN'T FIND THIS!");
-    }
-
-    @GetMapping("filterByHeroName")
-    public List<Hero> findByHeroName(@RequestParam(required = false) String name) {
-        if (name == null) {
-            return Hero.listHeroes();
-        } else {
-            return Hero.listHeroes()
-                    .stream()
-                    .filter(hero -> hero.getName().equalsIgnoreCase(name))
-                    .toList();
-        }
-    }
-
-    @GetMapping("filterByHeroId/{id}")
-    public Hero findByHeroId(@PathVariable long id) {
-        return Hero.listHeroes()
-                .stream()
-                .filter(hero -> hero.getId().equals(id))
-                .findFirst().orElse(null);
+        return ResponseEntity.status(HttpStatus.CREATED).body(hero);
     }
 }
 

@@ -1,10 +1,16 @@
 package bruno.spring.controller;
 
 import bruno.spring.domain.Hero;
+import bruno.spring.mapper.HeroMapper;
+import bruno.spring.request.HeroPostRequest;
+import bruno.spring.response.HeroGetResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.Mapper;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -13,6 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequestMapping("v1/heroes")
 @Slf4j
 public class HeroController {
+    private static final HeroMapper MAPPER = HeroMapper.INSTANCE;
     private static List<Hero> heroes = new ArrayList<>(Hero.listAllHeros());
 
     @GetMapping
@@ -28,10 +35,15 @@ public class HeroController {
         return hero;
     }
 
-    @PostMapping(value = "/testingHeaders", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Hero> test(@RequestBody Hero hero) {
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HeroGetResponse> test(@RequestBody HeroPostRequest heroPostRequest) {
+        Hero heroMapper = MAPPER.toHero(heroPostRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(hero);
+        HeroGetResponse response = MAPPER.toHeroGetResponse(heroMapper);
+
+        heroes.add(heroMapper);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
 

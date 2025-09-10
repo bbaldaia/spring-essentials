@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class HeroGetResponse {
+public class HeroPostResponse {
     private Long id;
     @JsonProperty("hero_name")
     private String name;

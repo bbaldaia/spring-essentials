@@ -3,6 +3,7 @@ package bruno.spring.controller;
 import bruno.spring.domain.Hero;
 import bruno.spring.mapper.HeroMapper;
 import bruno.spring.request.HeroPostRequest;
+import bruno.spring.request.HeroPutRequest;
 import bruno.spring.response.HeroGetResponse;
 import bruno.spring.response.HeroPostResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,11 @@ public class HeroController {
 
     @GetMapping
     public ResponseEntity<List<HeroGetResponse>> listAllHeros(@RequestParam(required = false) String name) {
-        log.debug("Request to find hero by name: {}", name);
+        if (name == null) {
+            log.debug("Request to fetch all heroes");
+        } else {
+            log.debug("Request to find hero '{}' by the name", name);
+        }
 
         var heroGetResponseList = MAPPER.toHeroGetResponseList(heroes);
 
@@ -39,7 +44,7 @@ public class HeroController {
 
     @GetMapping("{id}")
     public ResponseEntity<HeroGetResponse> getById(@PathVariable Long id) {
-        log.debug("Request to find hero by id: {}", id);
+        log.debug("Request to find hero by id '{}'", id);
 
         return ResponseEntity
                 .ok()
@@ -53,6 +58,8 @@ public class HeroController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HeroPostResponse> save(@RequestBody HeroPostRequest request) {
+        log.debug("Request to save hero '{}'", request.getName());
+
         Hero heroMapper = MAPPER.toHero(request);
 
         heroes.add(heroMapper);
@@ -73,6 +80,25 @@ public class HeroController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "This hero does not exist!"));
 
         heroes.remove(idToDelete);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping
+    public ResponseEntity<Void> update(@RequestBody HeroPutRequest request) {
+        var heroToDelete = heroes
+                .stream()
+                .filter(hero -> hero.getId().equals(request.getId()))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "This hero does not exist!"));
+
+        log.debug("Request to update from '{}' to '{}'", heroToDelete.getName(), request.getName());
+
+        heroes.remove(heroToDelete);
+
+        var heroToAdd = MAPPER.toHero(request, heroToDelete.getCreatedAt());
+
+        heroes.add(heroToAdd);
 
         return ResponseEntity.noContent().build();
     }

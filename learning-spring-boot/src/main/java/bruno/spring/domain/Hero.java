@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -20,13 +18,4 @@ public class Hero {
     @JsonProperty("hero_name")
     private String name;
     private LocalDateTime createdAt;
-    private static List<Hero> heroes = new ArrayList<>();
-
-    static {
-        heroes.add(Hero.builder().id(1L).name("Doctor Strange").createdAt(LocalDateTime.now()).build());
-    }
-
-    public static List<Hero> listAllHeros() {
-        return heroes;
-    }
 }

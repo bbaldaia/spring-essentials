@@ -9,7 +9,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -21,7 +20,7 @@ public interface HeroMapper {
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     Hero toHero(HeroPostRequest heroPostRequest);
 
-    Hero toHero(HeroPutRequest heroPutRequest, LocalDateTime createdAt);
+    Hero toHero(HeroPutRequest heroPutRequest);
 
     HeroGetResponse toHeroGetResponse(Hero hero);
 

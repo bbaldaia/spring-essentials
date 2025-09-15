@@ -7,14 +7,12 @@ import bruno.spring.response.HeroGetResponse;
 import bruno.spring.response.HeroPostResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.MappingConstants;
 
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface HeroMapper {
-
-    HeroMapper INSTANCE = Mappers.getMapper(HeroMapper.class);
 
     @Mapping(target = "id", expression = "java(java.util.concurrent.ThreadLocalRandom.current().nextLong(100))")
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")

@@ -15,34 +15,29 @@ import java.util.Optional;
 @AllArgsConstructor
 @Log4j2
 public class HeroHardCodedRepository {
-    private static final List<Hero> HEROES = new ArrayList<>();
+    private final HeroData heroData;
     private final Connection connect;
 
-    static {
-        HEROES.add(Hero.builder().id(1L).name("Doctor Strange").createdAt(LocalDateTime.now()).build());
-    }
-
     public List<Hero> findAll() {
-        log.debug(connect);
-        return HEROES;
+        return heroData.getHeroes();
     }
 
     public Optional<Hero> findById(Long id) {
-        return HEROES.stream().filter(hero -> hero.getId().equals(id)).findFirst();
+        return heroData.getHeroes().stream().filter(hero -> hero.getId().equals(id)).findFirst();
     }
 
     public List<Hero> findByName(String name) {
-        return HEROES.stream().filter(hero -> hero.getName().equalsIgnoreCase(name)).toList();
+        return heroData.getHeroes().stream().filter(hero -> hero.getName().equalsIgnoreCase(name)).toList();
     }
 
     public Hero save(Hero hero) {
-        HEROES.add(hero);
+        heroData.getHeroes().add(hero);
 
         return hero;
     }
 
     public void delete(Hero hero) {
-        HEROES.remove(hero);
+        heroData.getHeroes().remove(hero);
     }
 
     public void update(Hero hero) {

@@ -15,7 +15,6 @@ import java.util.Optional;
 @AllArgsConstructor
 @Log4j2
 public class HeroHardCodedRepository {
-
     private static final List<Hero> HEROES = new ArrayList<>();
     private final Connection connect;
 

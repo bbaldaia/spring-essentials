@@ -102,7 +102,7 @@ class HeroServiceTest {
 
         BDDMockito.when(repository.save(heroToSave)).thenReturn(heroToSave);
 
-        var heroSaved = repository.save(heroToSave);
+        var heroSaved = service.save(heroToSave);
 
         Assertions.assertThat(heroSaved).isEqualTo(heroToSave).hasNoNullFieldsOrProperties();
     }

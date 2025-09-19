@@ -1,13 +1,10 @@
 package bruno.spring.repository;
 
 import bruno.spring.domain.Hero;
-import external.dependency.Connection;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +13,6 @@ import java.util.Optional;
 @Log4j2
 public class HeroHardCodedRepository {
     private final HeroData heroData;
-    private final Connection connect;
 
     public List<Hero> findAll() {
         return heroData.getHeroes();

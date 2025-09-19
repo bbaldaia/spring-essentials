@@ -24,7 +24,7 @@ public class HeroController {
     private final HeroService service;
 
     @GetMapping
-    public ResponseEntity<List<HeroGetResponse>> listAllHeros(@RequestParam(required = false) String name) {
+    public ResponseEntity<List<HeroGetResponse>> findAllHeroes(@RequestParam(required = false) String name) {
         if (name == null) {
             log.debug("Request to fetch all heroes");
         } else {

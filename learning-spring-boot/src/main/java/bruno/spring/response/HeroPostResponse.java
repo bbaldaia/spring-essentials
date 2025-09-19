@@ -12,7 +12,5 @@ import java.time.LocalDateTime;
 @Builder
 public class HeroPostResponse {
     private Long id;
-    @JsonProperty("hero_name")
     private String name;
-    private LocalDateTime createdAt;
 }

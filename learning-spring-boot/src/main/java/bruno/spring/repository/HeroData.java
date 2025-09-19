@@ -13,6 +13,7 @@ public class HeroData {
 
     {
         heroes.add(Hero.builder().id(1L).name("Doctor Strange").createdAt(LocalDateTime.now()).build());
+        heroes.add(Hero.builder().id(2L).name("Black Panther").createdAt(LocalDateTime.now()).build());
     }
 
     public List<Hero> getHeroes() {

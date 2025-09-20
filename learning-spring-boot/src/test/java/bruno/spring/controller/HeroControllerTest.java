@@ -69,7 +69,7 @@ class HeroControllerTest {
     void findAll_ReturnsHeroFound_WhenNameIsFound() throws Exception {
         BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
         var response = readResourceFile("hero/get-hero-hulk-name-200.json");
-        var name = "Hulk";
+        var name = heroList.getFirst().getName();
 
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/heroes").param("name", name))
                 .andDo(MockMvcResultHandlers.print())
@@ -97,7 +97,7 @@ class HeroControllerTest {
     void getById_ReturnsEmptyList_WhenNameIsNotFound() throws Exception {
         BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
         var response = readResourceFile("hero/get-hero-by-id-200.json");
-        var id = 1L;
+        var id = heroList.getFirst().getId();
 
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/heroes/{id}", id))
                 .andDo(MockMvcResultHandlers.print())
@@ -118,7 +118,7 @@ class HeroControllerTest {
     }
 
     @Test
-    @DisplayName("POST v1/heroes creates a hero")
+    @DisplayName("POST v1/heroes creates a hero when id is found")
     @Order(6)
     void save_ReturnsHeroCreated_WhenSuccesfull() throws Exception {
         var request = readResourceFile("hero/post-request-hero-200.json");
@@ -135,6 +135,63 @@ class HeroControllerTest {
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.content().json(response));
+    }
+
+    @Test
+    @DisplayName("PUT v1/heroes updates hero in the list")
+    @Order(7)
+    void update_UpdatesHero_WhenFound() throws Exception {
+        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
+
+        var request = readResourceFile("hero/put-request-hero-200.json");
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/v1/heroes")
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("PUT v1/heroes throws ResponseStatusException when hero is not found")
+    @Order(8)
+    void update_ThrowsResponseStatusException_WhenHeroIsNotFound() throws Exception {
+        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
+
+        var request = readResourceFile("hero/put-request-hero-404.json");
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/v1/heroes")
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("delete removes a hero when found")
+    @Order(9)
+    void delete_RemovesHero_WhenFound() throws Exception {
+        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
+
+        var id = heroList.getFirst().getId();
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/v1/heroes/{id}", id))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("delete throws ResponseStatusException when hero is not found")
+    @Order(10)
+    void delete_ThrowsResponseStatusException_WhenHeroIsNotFound() throws Exception {
+        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
+
+        var id = 123L;
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/v1/heroes/{id}", id))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     private String readResourceFile(String fileName) throws IOException {

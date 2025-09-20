@@ -8,6 +8,5 @@ import lombok.Setter;
 @Setter
 public class HeroPutRequest {
     private Long id;
-    @JsonProperty("hero_name")
     private String name;
 }

@@ -1,12 +1,14 @@
-package external.dependency;
+package bruno.spring.config;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.ToString;
 
 @ToString
+@Getter
 @AllArgsConstructor
 public class Connection {
-    private String host;
+    private String url;
     private String username;
     private String password;
 }

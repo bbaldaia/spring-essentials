@@ -4,6 +4,7 @@ import bruno.spring.domain.Hero;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Repository;
+import bruno.spring.config.Connection;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,8 +14,10 @@ import java.util.Optional;
 @Log4j2
 public class HeroHardCodedRepository {
     private final HeroData heroData;
+    private final Connection connection;
 
     public List<Hero> findAll() {
+        log.info("connection -----> {}", connection);
         return heroData.getHeroes();
     }
 

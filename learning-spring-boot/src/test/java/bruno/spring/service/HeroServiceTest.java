@@ -1,5 +1,6 @@
 package bruno.spring.service;
 
+import bruno.spring.commons.HeroUtils;
 import bruno.spring.domain.Hero;
 import bruno.spring.repository.HeroHardCodedRepository;
 import org.assertj.core.api.Assertions;
@@ -21,14 +22,15 @@ class HeroServiceTest {
 
     @InjectMocks
     private HeroService service;
+    @InjectMocks
+    private HeroUtils heroUtils;
     @Mock
     private HeroHardCodedRepository repository;
     private List<Hero> heroList = new ArrayList<>();
 
     @BeforeEach
     void init() {
-        heroList.add(Hero.builder().id(1L).name("Doctor Strange").createdAt(LocalDateTime.now()).build());
-        heroList.add(Hero.builder().id(2L).name("Black Panther").createdAt(LocalDateTime.now()).build());
+        heroList = heroUtils.newHeroList();
     }
 
     @Test

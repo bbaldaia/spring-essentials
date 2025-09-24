@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: hero-service
+
+server:
+  error:
+    include-stacktrace: on_param
+
+logging:
+  level:
+    bruno.spring: debug
+
+database:
+  url: ${DB_URL:localhost}:${DB_PORT:3306}
+  username: ${LOCAL_USERNAME:default}
+  password: ${LOCAL_PASSWORD:default}

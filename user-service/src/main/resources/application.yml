@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: user-service
+
+server:
+  error:
+    include-stacktrace: on_param
+
+logging:
+  level:
+    user.service: debug

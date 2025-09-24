@@ -73,7 +73,7 @@ class HeroServiceTest {
     @Test
     @DisplayName("findByIdOrThrowNotFound returns a hero when id is found")
     @Order(4)
-    void findByIdOrThrowNotFound_ReturnsEmptyList_WhenNameIsNotFound() {
+    void findByIdOrThrowNotFound_ReturnsHero_WhenIdIsFound() {
         var expectedHero = heroList.getFirst();
 
         BDDMockito.when(repository.findById(expectedHero.getId())).thenReturn(Optional.of(expectedHero));

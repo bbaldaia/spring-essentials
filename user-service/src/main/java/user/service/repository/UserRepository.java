@@ -25,7 +25,7 @@ public class UserRepository {
     }
 
     //List because the result can be no user found, 1 user found or N users found
-    public List<User> findByName(String firstName) {
+    public List<User> findByFirstName(String firstName) {
         return userData.getUsers()
                 .stream()
                 .filter(user -> user.getFirstName().equalsIgnoreCase(firstName))

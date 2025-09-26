@@ -3,8 +3,11 @@ spring:
     name: user-service
 
 server:
+  port: 8090
   error:
     include-stacktrace: on_param
+  serverlet:
+      context-path: /
 
 logging:
   level:

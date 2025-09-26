@@ -1,5 +1,6 @@
 package user.service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -28,11 +29,11 @@ public class UserController {
     public ResponseEntity<List<UserGetResponse>> findAll(@RequestParam(required = false) String firstName) {
         log.debug("Iniciando captura de todos os usuários");
 
-        List<User> users = service.findAll(firstName);
+        var userList = service.findAll(firstName);
 
-        List<UserGetResponse> response =  userMapper.toUserGetResponseList(users);
+        List<UserGetResponse> response =  userMapper.toUserGetResponseList(userList);
 
-        log.debug("Captura finalizada. {} usuários encontrados", users.size());
+        log.debug("Captura finalizada. {} usuários encontrados", userList.size());
 
         return ResponseEntity.ok(response);
     }
@@ -41,7 +42,7 @@ public class UserController {
     public ResponseEntity<UserGetResponse> findById(@PathVariable Long id) {
         log.debug("Iniciando captura de usuário pelo id '{}'", id);
 
-        User user = service.findById(id);
+        var user = service.findById(id);
 
         UserGetResponse response = userMapper.toUserGetResponse(user);
 
@@ -51,19 +52,18 @@ public class UserController {
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserPostResponse> create(@RequestBody UserPostRequest request) {
+    public ResponseEntity<UserPostResponse> create(@RequestBody @Valid UserPostRequest request) {
         log.debug("Iniciando criação de usuário com os seguintes dados: '{}'", request);
 
-        User user = userMapper.toUser(request);
+        var user = userMapper.toUser(request);
 
-        User userToSave = service.create(user);
+        var userToSave = service.create(user);
 
         UserPostResponse response = userMapper.toUserPostResponse(userToSave);
 
         log.debug("Criação finalizada. Corpo da resposta: '{}'", response);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
     }
 
     @DeleteMapping("{id}")
@@ -78,7 +78,7 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> update(@RequestBody UserPutRequest request) {
+    public ResponseEntity<Void> update(@RequestBody @Valid UserPutRequest request) {
         log.debug("Iniciando atualização de usuário com id '{}'. Informações novas: {}", request.getId(), request);
 
         User userToUpdate = userMapper.toUser(request);

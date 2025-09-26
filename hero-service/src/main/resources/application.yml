@@ -5,6 +5,8 @@ spring:
 server:
   error:
     include-stacktrace: on_param
+  serverlet:
+    context-path: /
 
 logging:
   level:

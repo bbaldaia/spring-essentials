@@ -37,10 +37,10 @@ class UserRepositoryTest {
     @Test
     @Order(1)
     @DisplayName("findAll returns a list of all users found")
-        void findAll_ReturnsAllUsers_WhenSuccessful() {
+    void findAll_ReturnsAllUsers_WhenSuccessful() {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
 
-        List<User> users = repository.findAll();
+        var users = repository.findAll();
 
         Assertions.assertThat(users).isNotNull().hasSameElementsAs(userList);
     }
@@ -51,11 +51,11 @@ class UserRepositoryTest {
     void findById_ReturnsSingleUser_WhenFound() {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
 
-        User expectedUser = userList.getFirst();
+        var expectedUser = userList.getFirst();
 
-        Optional<User> userById = repository.findById(expectedUser.getId());
+        var optionalUser = repository.findById(expectedUser.getId());
 
-        Assertions.assertThat(userById).isPresent().contains(expectedUser);
+        Assertions.assertThat(optionalUser).isPresent().contains(expectedUser);
     }
 
     @Test
@@ -64,35 +64,35 @@ class UserRepositoryTest {
     void findById_ReturnsEmpty_WhenNotFound() {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
 
-        Long randomId = 99L;
+        var randomId = 99L;
 
-        Optional<User> userById = repository.findById(randomId);
+        var optionalUser = repository.findById(randomId);
 
-        Assertions.assertThat(userById).isEmpty().isNotNull();
+        Assertions.assertThat(optionalUser).isEmpty().isNotNull();
     }
 
     @Test
     @Order(4)
-    @DisplayName("findByName returns user found when first name is not null")
-    void findByName_ReturnsUserList_WhenNameIsFound() {
+    @DisplayName("findByFirstName returns user found when first name is not null")
+    void findByFirstName_ReturnsUserList_WhenNameIsFound() {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
 
-        User expectedUser = userList.getFirst();
+        var expectedUser = userList.getFirst();
 
-        List<User> userByName = repository.findByName(expectedUser.getFirstName());
+        List<User> userByFirstName = repository.findByFirstName(expectedUser.getFirstName());
 
-        Assertions.assertThat(userByName).isNotEmpty().isNotNull().contains(expectedUser);
+        Assertions.assertThat(userByFirstName).isNotEmpty().isNotNull().contains(expectedUser);
     }
 
     @Test
     @Order(5)
-    @DisplayName("findByName returns an empty list when first name is null")
-    void findByName_ReturnsEmptyList_WhenNameIsNotFound() {
+    @DisplayName("findByFirstName returns an empty list when first name is null")
+    void findByFirstName_ReturnsEmptyList_WhenNameIsNotFound() {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
 
-        List<User> userByName = repository.findByName(null);
+        List<User> userByFirstName = repository.findByFirstName(null);
 
-        Assertions.assertThat(userByName).isNotNull().isEmpty();
+        Assertions.assertThat(userByFirstName).isNotNull().isEmpty();
     }
 
     @Test
@@ -101,14 +101,14 @@ class UserRepositoryTest {
     void create_SavesNewUser_WhenSuccessful() {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
 
-        User newUser = User.builder()
+        var newUser = User.builder()
                 .id(3L)
                 .firstName("Marcela")
                 .lastName("Freire")
                 .email("marcela@gmail.com")
                 .build();
 
-        User createdUser = repository.create(newUser);
+        var createdUser = repository.create(newUser);
 
         Assertions.assertThat(createdUser).isEqualTo(newUser).hasNoNullFieldsOrProperties();
     }
@@ -119,7 +119,7 @@ class UserRepositoryTest {
     void delete_RemovesUser_WhenSuccessful() {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
 
-        User userToDelete = userList.getFirst();
+        var userToDelete = userList.getFirst();
 
         repository.delete(userToDelete);
 
@@ -132,7 +132,7 @@ class UserRepositoryTest {
     void update_UpdatesUser_WhenSuccessful() {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
 
-        User userToUpdate = userList.getFirst();
+        var userToUpdate = userList.getFirst();
         userToUpdate.setFirstName("Darlei");
         userToUpdate.setLastName("Freire");
 
@@ -140,7 +140,7 @@ class UserRepositoryTest {
 
         Assertions.assertThat(userList).contains(userToUpdate);
 
-        Optional<User> optionalUpdatedUser = repository.findById(userToUpdate.getId());
+        var optionalUpdatedUser = repository.findById(userToUpdate.getId());
 
         Assertions.assertThat(optionalUpdatedUser).isPresent();
         Assertions.assertThat(optionalUpdatedUser.get().getFirstName()).isEqualTo(userToUpdate.getFirstName());

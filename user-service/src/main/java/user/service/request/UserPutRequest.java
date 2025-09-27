@@ -17,7 +17,7 @@ public class UserPutRequest {
     private String firstName;
     @NotBlank(message = "LAST NAME IS MANDATORY!")
     private String lastName;
-    @Email(message = "INVALID E-MAIL!")
+    @Email(message = "E-MAIL IS INVALID!")
     @NotBlank(message = "E-MAIL IS MANDATORY!")
     private String email;
 }

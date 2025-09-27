@@ -1,7 +1,10 @@
 package user.service.controller;
 
-import lombok.RequiredArgsConstructor;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +25,9 @@ import user.service.repository.UserData;
 import user.service.repository.UserRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 @WebMvcTest(controllers = UserController.class)
 @ComponentScan(basePackages = {"user.service"})
@@ -184,6 +189,85 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @ParameterizedTest
+    @MethodSource("postUserBadRequestSource")
+    @Order(11)
+    @DisplayName("POST v1/users returns 'Bad Request' when fields are empty/blank or e-mail is invalid")
+    void create_ReturnsBadRequest_WhenFieldsAreIncorrect(String fileName, List<String> errors) throws Exception {
+        String request = fileUtils.readResourceFile("user/" + fileName);
+
+        var mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(URI)
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        var resolvedException = mvcResult.getResolvedException();
+
+        Assertions.assertThat(resolvedException).isNotNull();
+
+        Assertions.assertThat(resolvedException.getMessage()).contains(errors);
+    }
+
+    @ParameterizedTest
+    @MethodSource("putUserBadRequestSource")
+    @Order(12)
+    @DisplayName("PUT v1/users returns 'Bad Request' (status 400) when fields are empty/blank or email is invalid")
+    void update_ReturnsBadRequest_WhenFieldsAreIncorrect(String fileName, List<String> errors) throws Exception {
+        String request = fileUtils.readResourceFile("user/" + fileName);
+
+        var mvcResult = mockMvc.perform(MockMvcRequestBuilders.put(URI)
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        var resolvedException = mvcResult.getResolvedException();
+
+        Assertions.assertThat(resolvedException).isNotNull();
+
+        Assertions.assertThat(resolvedException.getMessage()).contains(errors);
+    }
+
+    private static Stream<Arguments> postUserBadRequestSource() {
+        return Stream.of(
+                Arguments.of("post-request-blank-400.json", getBadRequestAllErrors()),
+                Arguments.of("post-request-empty-400.json", getBadRequestAllErrors()),
+                Arguments.of("post-request-invalid-email-400.json", getBadRequestInvalidEmailError())
+        );
+    }
+
+    private static Stream<Arguments> putUserBadRequestSource() {
+        return Stream.of(
+                Arguments.of("put-request-blank-400.json", getBadRequestAllErrors()),
+                Arguments.of("put-request-empty-400.json", getBadRequestAllErrors()),
+                Arguments.of("put-request-invalid-email-400.json", getBadRequestInvalidEmailError()),
+                Arguments.of("put-request-null-id-400.json", getBadRequestNullIdError())
+        );
+    }
+
+    private static List<String> getBadRequestAllErrors() {
+        var mandatoryFirstNameError = "FIRST NAME IS MANDATORY!";
+        var mandatoryLastNameError = "LAST NAME IS MANDATORY!";
+        var mandatoryEmailError = "E-MAIL IS MANDATORY!";
+
+        return List.of(mandatoryFirstNameError, mandatoryLastNameError, mandatoryEmailError);
+    }
+
+    private static List<String> getBadRequestInvalidEmailError() {
+        var invalidEmailError = "E-MAIL IS INVALID!";
+
+        return Collections.singletonList(invalidEmailError);
+    }
+
+    private static List<String> getBadRequestNullIdError() {
+        var nullIdError = "THE FIELD 'ID' CAN'T BE NULL!";
+
+        return Collections.singletonList(nullIdError);
     }
 }
 

@@ -6,6 +6,7 @@ import hero.service.request.HeroPutRequest;
 import hero.service.response.HeroGetResponse;
 import hero.service.response.HeroPostResponse;
 import hero.service.service.HeroService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -50,7 +51,7 @@ public class HeroController {
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HeroPostResponse> save(@RequestBody HeroPostRequest request) {
+    public ResponseEntity<HeroPostResponse> save(@RequestBody @Valid HeroPostRequest request) {
         log.debug("Request to save hero '{}'", request.getName());
 
         var hero = mapper.toHero(request);
@@ -72,7 +73,7 @@ public class HeroController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> update(@RequestBody HeroPutRequest request) {
+    public ResponseEntity<Void> update(@RequestBody @Valid HeroPutRequest request) {
         var heroToBeUpdated = mapper.toHero(request);
 
         service.update(heroToBeUpdated);

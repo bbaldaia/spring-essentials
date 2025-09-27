@@ -5,7 +5,11 @@ import hero.service.commons.HeroUtils;
 import hero.service.domain.Hero;
 import hero.service.repository.HeroData;
 import hero.service.repository.HeroHardCodedRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +26,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 @WebMvcTest(controllers = HeroController.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@ComponentScan(basePackages = {"bruno.spring"})
+@ComponentScan(basePackages = {"hero.service"})
 @ActiveProfiles("test")
 class HeroControllerTest {
 
@@ -137,8 +143,34 @@ class HeroControllerTest {
     }
 
     @Test
-    @DisplayName("PUT v1/heroes updates hero in the list")
+    @DisplayName("delete removes a hero when found")
     @Order(7)
+    void delete_RemovesHero_WhenFound() throws Exception {
+        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
+
+        var id = heroList.getFirst().getId();
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(URI + "/{id}", id))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("delete throws ResponseStatusException when hero is not found")
+    @Order(8)
+    void delete_ThrowsResponseStatusException_WhenHeroIsNotFound() throws Exception {
+        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
+
+        var id = 123L;
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(URI + "/{id}", id))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("PUT v1/heroes updates hero in the list")
+    @Order(9)
     void update_UpdatesHero_WhenFound() throws Exception {
         BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
 
@@ -154,7 +186,7 @@ class HeroControllerTest {
 
     @Test
     @DisplayName("PUT v1/heroes throws ResponseStatusException when hero is not found")
-    @Order(8)
+    @Order(10)
     void update_ThrowsResponseStatusException_WhenHeroIsNotFound() throws Exception {
         BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
 
@@ -167,30 +199,77 @@ class HeroControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
-    @Test
-    @DisplayName("delete removes a hero when found")
-    @Order(9)
-    void delete_RemovesHero_WhenFound() throws Exception {
-        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
+    @ParameterizedTest
+    @MethodSource("postHeroBadRequestSource")
+    @DisplayName("POST v1/heroes returns 'Bad Request' when name is empty/blank")
+    @Order(11)
+    void save_ReturnsBadRequest_WhenNameIsIncorrect(String fileName, List<String> errors) throws Exception {
+        String request = fileUtils.readResourceFile("hero/" + fileName);
 
-        var id = heroList.getFirst().getId();
-
-        mockMvc.perform(MockMvcRequestBuilders.delete(URI + "/{id}", id))
+        var mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(URI)
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        var resolvedException = mvcResult.getResolvedException();
+
+        Assertions.assertThat(resolvedException).isNotNull();
+        Assertions.assertThat(resolvedException.getMessage()).contains(errors);
     }
 
-    @Test
-    @DisplayName("delete throws ResponseStatusException when hero is not found")
-    @Order(10)
-    void delete_ThrowsResponseStatusException_WhenHeroIsNotFound() throws Exception {
-        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
+    @ParameterizedTest
+    @MethodSource("putHeroBadRequestSource")
+    @DisplayName("PUT v1/heroes returns 'Bad Request' when name is empty/blank or id is null")
+    @Order(12)
+    void update_ReturnsBadRequest_WhenFieldsAreIncorrect(String fileName, List<String> errors) throws Exception {
+        String request = fileUtils.readResourceFile("hero/" + fileName);
 
-        var id = 123L;
-
-        mockMvc.perform(MockMvcRequestBuilders.delete(URI + "/{id}", id))
+        var mvcResult = mockMvc.perform(MockMvcRequestBuilders.put(URI)
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isNotFound());
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        var resolvedException = mvcResult.getResolvedException();
+
+        Assertions.assertThat(resolvedException).isNotNull();
+        Assertions.assertThat(resolvedException.getMessage()).contains(errors);
+    }
+
+    private static Stream<Arguments> postHeroBadRequestSource() {
+        return Stream.of(
+                Arguments.of("post-request-empty-400.json", getBadRequestNameError()),
+                Arguments.of("post-request-blank-400.json", getBadRequestNameError())
+        );
+    }
+
+    private static Stream<Arguments> putHeroBadRequestSource() {
+        return Stream.of(
+                Arguments.of("put-request-null-id-400.json", getBadRequestNullIdError()),
+                Arguments.of("put-request-invalid-id-and-name-400.json", getBadRequestNameAndIdError())
+        );
+    }
+
+    private static List<String> getBadRequestNameError() {
+        var mandatoryNameError = "NAME IS MANDATORY!";
+
+        return Collections.singletonList(mandatoryNameError);
+    }
+
+    private static List<String> getBadRequestNullIdError() {
+        var nullIdError = "ID CAN'T BE NULL!";
+
+        return Collections.singletonList(nullIdError);
+    }
+
+    private static List<String> getBadRequestNameAndIdError() {
+        var nullIdError = "ID CAN'T BE NULL!";
+        var mandatoryNameError = "NAME IS MANDATORY!";
+
+        return new ArrayList<>(List.of(nullIdError, mandatoryNameError));
     }
 }
 

@@ -111,13 +111,16 @@ class UserControllerTest {
 
     @Test
     @Order(5)
-    @DisplayName("GET v1/users/99 findAll throws ResponseStatusException (status 404) when id is not found")
-    void findById_ThrowsResponseStatusException_WhenIsNotFound() throws Exception {
+    @DisplayName("GET v1/users/99 findAll throws NotFound (status 404) when id is not found")
+    void findById_ThrowsNotFound_WhenIsNotFound() throws Exception {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
 
         mockMvc.perform(MockMvcRequestBuilders.get(URI + "/{id}", 99L))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
+//
+//        Assertions.assertThatException()
+//                .isThrownBy()
     }
 
     @Test
@@ -154,8 +157,8 @@ class UserControllerTest {
 
     @Test
     @Order(8)
-    @DisplayName("DELETE v1/users/99 throws ResponseStatusException (status 404) when user is not found")
-    void delete_ThrowsResponseStatusException_WhenNotFound() throws Exception {
+    @DisplayName("DELETE v1/users/99 throws NotFound (status 404) when user is not found")
+    void delete_ThrowsNotFound_WhenNotFound() throws Exception {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
 
         mockMvc.perform(MockMvcRequestBuilders.delete(URI + "/{id}", 99L))
@@ -179,8 +182,8 @@ class UserControllerTest {
 
     @Test
     @Order(10)
-    @DisplayName("UPDATE v1/users throws ResponseStatusException (status 404) when user is not found")
-    void update_ThrowsResponseStatusException_WhenNotFound() throws Exception {
+    @DisplayName("UPDATE v1/users throws NotFound (status 404) when user is not found")
+    void update_ThrowsNotFound_WhenNotFound() throws Exception {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
         String request = fileUtils.readResourceFile("user/put-request-user-404.json");
 

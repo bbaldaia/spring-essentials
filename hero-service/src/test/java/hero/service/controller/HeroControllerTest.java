@@ -111,9 +111,9 @@ class HeroControllerTest {
     }
 
     @Test
-    @DisplayName("GET v1/heroes/99 throws ResponseStatusException 404 when hero is not found")
+    @DisplayName("GET v1/heroes/99 throws NotFound 404 when hero is not found")
     @Order(5)
-    void getById_ThrowsResponseStatusException_WhenNameIsNotFound() throws Exception {
+    void getById_ThrowsNotFound_WhenNameIsNotFound() throws Exception {
         BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
         var id = 99L;
 
@@ -156,9 +156,9 @@ class HeroControllerTest {
     }
 
     @Test
-    @DisplayName("delete throws ResponseStatusException when hero is not found")
+    @DisplayName("delete throws NotFound when hero is not found")
     @Order(8)
-    void delete_ThrowsResponseStatusException_WhenHeroIsNotFound() throws Exception {
+    void delete_ThrowsNotFound_WhenHeroIsNotFound() throws Exception {
         BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
 
         var id = 123L;
@@ -185,9 +185,9 @@ class HeroControllerTest {
     }
 
     @Test
-    @DisplayName("PUT v1/heroes throws ResponseStatusException when hero is not found")
+    @DisplayName("PUT v1/heroes throws NotFound when hero is not found")
     @Order(10)
-    void update_ThrowsResponseStatusException_WhenHeroIsNotFound() throws Exception {
+    void update_ThrowsNotFound_WhenHeroIsNotFound() throws Exception {
         BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
 
         String request = fileUtils.readResourceFile("hero/put-request-hero-404.json");

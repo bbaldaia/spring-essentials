@@ -84,9 +84,9 @@ class HeroServiceTest {
     }
 
     @Test
-    @DisplayName("findByIdOrThrowNotFound throws ResponseStatusException when hero is not found")
+    @DisplayName("findByIdOrThrowNotFound throws NotFound when hero is not found")
     @Order(5)
-    void findByIdOrThrowNotFound_ThrowsResponseStatusException_WhenNameIsNotFound() {
+    void findByIdOrThrowNotFound_ThrowsNotFound_WhenNameIsNotFound() {
         var expectedHero = heroList.getFirst();
 
         BDDMockito.when(repository.findById(expectedHero.getId())).thenReturn(Optional.empty());
@@ -122,9 +122,9 @@ class HeroServiceTest {
     }
 
     @Test
-    @DisplayName("delete throws ResponseStatusException when hero is not found")
+    @DisplayName("delete throws NotFound when hero is not found")
     @Order(8)
-    void delete_ThrowsResponseStatusException_WhenHeroIsNotFound() {
+    void delete_ThrowsNotFound_WhenHeroIsNotFound() {
         var heroToDelete = heroList.getFirst();
 
         BDDMockito.when(repository.findById(heroToDelete.getId())).thenReturn(Optional.empty());
@@ -151,9 +151,9 @@ class HeroServiceTest {
     }
 
     @Test
-    @DisplayName("updates throws ResponseStatusException when hero is not found")
+    @DisplayName("updates throws NotFound when hero is not found")
     @Order(10)
-    void updates_ThrowsResponseStatusException_WhenHeroIsNotFound() {
+    void updates_ThrowsNotFound_WhenHeroIsNotFound() {
         var heroToUpdate = heroList.getFirst();
 
         BDDMockito.when(repository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.empty());

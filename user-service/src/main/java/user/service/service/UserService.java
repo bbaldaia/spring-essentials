@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import user.service.domain.User;
+import user.service.exception.NotFoundException;
 import user.service.repository.UserRepository;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class UserService {
 
     public User findById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "USER ID NOT FOUND!"));
+                .orElseThrow(() -> new NotFoundException("USER ID NOT FOUND!"));
     }
 
     public User create(User user) {

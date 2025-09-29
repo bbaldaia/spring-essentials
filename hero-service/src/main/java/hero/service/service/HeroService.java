@@ -1,6 +1,7 @@
 package hero.service.service;
 
 import hero.service.domain.Hero;
+import hero.service.exception.NotFoundException;
 import hero.service.repository.HeroHardCodedRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ public class HeroService {
 
     public Hero findByIdOrThrowNotFound(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "HERO NOT FOUND!"));
+                .orElseThrow(() -> new NotFoundException("HERO NOT FOUND!"));
     }
 
     public Hero save(Hero hero) {

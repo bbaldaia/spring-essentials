@@ -92,8 +92,8 @@ class UserServiceTest {
 
     @Test
     @Order(5)
-    @DisplayName("findById throws ResponseStatusException (status 404) when id is not found")
-    void findById_ThrowsResponseStatusException_WhenIsNotFound() {
+    @DisplayName("findById throws NotFound (status 404) when id is not found")
+    void findById_ThrowsNotFound_WhenIsNotFound() {
         var nonExistingId = 99L;
 
         BDDMockito.when(repository.findById(nonExistingId))
@@ -139,8 +139,8 @@ class UserServiceTest {
 
     @Test
     @Order(8)
-    @DisplayName("delete throws ResponseStatusException (status 404) when user is not found")
-    void delete_ThrowsResponseStatusException_WhenNotFound() {
+    @DisplayName("delete throws NotFound (status 404) when user is not found")
+    void delete_ThrowsNotFound_WhenNotFound() {
         BDDMockito.when(repository.findById(ArgumentMatchers.anyLong()))
                 .thenReturn(Optional.empty());
 
@@ -167,8 +167,8 @@ class UserServiceTest {
 
     @Test
     @Order(10)
-    @DisplayName("update throws ResponseStatusException (status 404) when user is not found")
-    void update_ThrowsResponseStatusException_WhenNotFound() {
+    @DisplayName("update throws NotFound (status 404) when user is not found")
+    void update_ThrowsNotFound_WhenNotFound() {
         var expectedUser = userList.getFirst();
 
         BDDMockito.when(repository.findById(ArgumentMatchers.anyLong()))

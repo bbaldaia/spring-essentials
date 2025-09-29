@@ -61,7 +61,7 @@ class HeroControllerTest {
     @Order(1)
     void findAll_ReturnsAllHeroes_WhenNameIsNull() throws Exception {
         BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
-        var response = fileUtils.readResourceFile("hero/get-hero-null-name-200.json");
+        String response = fileUtils.readResourceFile("hero/get-hero-null-name-200.json");
         mockMvc.perform(MockMvcRequestBuilders.get(URI))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -73,7 +73,7 @@ class HeroControllerTest {
     @Order(2)
     void findAll_ReturnsHeroFound_WhenNameIsFound() throws Exception {
         BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
-        var response = fileUtils.readResourceFile("hero/get-hero-hulk-name-200.json");
+        String response = fileUtils.readResourceFile("hero/get-hero-hulk-name-200.json");
         var name = heroList.getFirst().getName();
 
         mockMvc.perform(MockMvcRequestBuilders.get(URI).param("name", name))
@@ -87,7 +87,7 @@ class HeroControllerTest {
     @Order(3)
     void findAll_ReturnsEmptyList_WhenNameIsNotFound() throws Exception {
         BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
-        var response = fileUtils.readResourceFile("hero/get-hero-empty-200.json");
+        String response = fileUtils.readResourceFile("hero/get-hero-empty-200.json");
         var name = "x";
 
         mockMvc.perform(MockMvcRequestBuilders.get(URI).param("name", name))
@@ -101,7 +101,7 @@ class HeroControllerTest {
     @Order(4)
     void getById_ReturnsEmptyList_WhenNameIsNotFound() throws Exception {
         BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
-        var response = fileUtils.readResourceFile("hero/get-hero-by-id-200.json");
+        String response = fileUtils.readResourceFile("hero/get-hero-by-id-200.json");
         var id = heroList.getFirst().getId();
 
         mockMvc.perform(MockMvcRequestBuilders.get(URI + "/{id}", id))
@@ -126,8 +126,8 @@ class HeroControllerTest {
     @DisplayName("POST v1/heroes creates a hero when id is found")
     @Order(6)
     void save_ReturnsHeroCreated_WhenSuccesfull() throws Exception {
-        var request = fileUtils.readResourceFile("hero/post-request-hero-200.json");
-        var response = fileUtils.readResourceFile("hero/post-response-hero-201.json");
+        String request = fileUtils.readResourceFile("hero/post-request-hero-200.json");
+        String response = fileUtils.readResourceFile("hero/post-response-hero-201.json");
         var heroToSave = Hero.builder().id(99L).name("Thor").createdAt(LocalDateTime.now()).build();
 
         BDDMockito.when(repository.save(ArgumentMatchers.any())).thenReturn(heroToSave);
@@ -174,7 +174,7 @@ class HeroControllerTest {
     void update_UpdatesHero_WhenFound() throws Exception {
         BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
 
-        var request = fileUtils.readResourceFile("hero/put-request-hero-200.json");
+        String request = fileUtils.readResourceFile("hero/put-request-hero-200.json");
 
         mockMvc.perform(MockMvcRequestBuilders
                         .put(URI)
@@ -190,7 +190,7 @@ class HeroControllerTest {
     void update_ThrowsResponseStatusException_WhenHeroIsNotFound() throws Exception {
         BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
 
-        var request = fileUtils.readResourceFile("hero/put-request-hero-404.json");
+        String request = fileUtils.readResourceFile("hero/put-request-hero-404.json");
 
         mockMvc.perform(MockMvcRequestBuilders.put(URI)
                         .content(request)
@@ -272,20 +272,3 @@ class HeroControllerTest {
         return new ArrayList<>(List.of(nullIdError, mandatoryNameError));
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -32,9 +32,9 @@ public class HeroController {
             log.debug("Request to find hero '{}' by the name", name);
         }
 
-        var heroes = service.findAll(name);
+        var heroList = service.findAll(name);
 
-        var heroGetResponseList = mapper.toHeroGetResponseList(heroes);
+        var heroGetResponseList = mapper.toHeroGetResponseList(heroList);
 
         return ResponseEntity.ok(heroGetResponseList);
     }
@@ -58,7 +58,7 @@ public class HeroController {
 
         var heroToBeAdded = service.save(hero);
 
-        HeroPostResponse heroPostResponse = mapper.toHeroPostResponse(heroToBeAdded);
+        var heroPostResponse = mapper.toHeroPostResponse(heroToBeAdded);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(heroPostResponse);
     }

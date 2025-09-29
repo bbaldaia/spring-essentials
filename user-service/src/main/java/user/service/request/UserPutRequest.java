@@ -21,4 +21,3 @@ public class UserPutRequest {
     @NotBlank(message = "E-MAIL IS MANDATORY!")
     private String email;
 }
-

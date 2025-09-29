@@ -13,4 +13,3 @@ public class UserGetResponse {
     private String lastName;
     private String email;
 }
-

@@ -1,13 +1,21 @@
 spring:
+  config:
+    import: optional:classpath:.env[.properties]
   application:
     name: user-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/user_service?createDatabaseIfNotExist=true
+    username: ${ENV_ROOT_USER}
+    password: ${ENV_ROOT_PASSWORD}
+  jpa:
+    show-sql: true
 
 server:
   port: 8090
   error:
     include-stacktrace: on_param
   serverlet:
-      context-path: /
+    context-path: /
 
 logging:
   level:

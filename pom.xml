@@ -8,8 +8,9 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
+		<module>commons-core</module>
 		<module>hero-service</module>
 		<module>user-service</module>
-	</modules>
+    </modules>
 
 </project>

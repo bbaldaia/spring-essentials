@@ -1,5 +1,6 @@
 package bruno.spring.service;
 
+import bruno.spring.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 import bruno.spring.commons.UserUtils;
 import bruno.spring.domain.User;
-import bruno.spring.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +53,7 @@ class UserServiceTest {
         var user = userList.getFirst();
         var oneUserList = Collections.singletonList(user);
 
-        BDDMockito.when(repository.findByFirstName(user.getFirstName()))
+        BDDMockito.when(repository.findByFirstNameIgnoreCase(user.getFirstName()))
                 .thenReturn(oneUserList);
 
         List<User> userFound = service.findAll(user.getFirstName());
@@ -69,7 +69,7 @@ class UserServiceTest {
 
         List<User> emptyUserList = Collections.emptyList();
 
-        BDDMockito.when(repository.findByFirstName(nonExistingFirstName)).thenReturn(emptyUserList);
+        BDDMockito.when(repository.findByFirstNameIgnoreCase(nonExistingFirstName)).thenReturn(emptyUserList);
 
         var noValueUserList = service.findAll(nonExistingFirstName);
 
@@ -115,7 +115,7 @@ class UserServiceTest {
                 .email("darlei@gmail.com")
                 .build();
 
-        BDDMockito.when(repository.create(userToCreate)).thenReturn(userToCreate);
+        BDDMockito.when(repository.save(userToCreate)).thenReturn(userToCreate);
 
         var createdUser = service.create(userToCreate);
 
@@ -159,7 +159,7 @@ class UserServiceTest {
         BDDMockito.when(repository.findById(expectedUser.getId()))
                 .thenReturn(Optional.of(expectedUser));
 
-        BDDMockito.doNothing().when(repository).update(expectedUser);
+        BDDMockito.when(repository.save(expectedUser)).thenReturn(expectedUser);
 
         Assertions.assertThatNoException()
                 .isThrownBy(() -> service.update(expectedUser));

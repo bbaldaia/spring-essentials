@@ -1,21 +1,20 @@
 package bruno.spring.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import bruno.spring.domain.User;
 import bruno.spring.exception.NotFoundException;
 import bruno.spring.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-//any validation is necessary in these methods?
 public class UserService {
     private final UserRepository repository;
 
     public List<User> findAll(String firstName) {
-        return firstName == null ? repository.findAll() : repository.findByFirstName(firstName);
+        return firstName == null ? repository.findAll() : repository.findByFirstNameIgnoreCase(firstName);
     }
 
     public User findById(Long id) {
@@ -24,7 +23,7 @@ public class UserService {
     }
 
     public User create(User user) {
-        return repository.create(user);
+        return repository.save(user);
     }
 
     public void delete(Long id) {
@@ -36,6 +35,6 @@ public class UserService {
     public void update(User user) {
         findById(user.getId());
 
-        repository.update(user);
+        repository.save(user);
     }
 }

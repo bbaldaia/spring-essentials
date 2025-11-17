@@ -2,7 +2,7 @@ package bruno.spring.service;
 
 import bruno.spring.commons.HeroUtils;
 import bruno.spring.domain.Hero;
-import bruno.spring.repository.HeroHardCodedRepository;
+import bruno.spring.repository.HeroRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,7 +10,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +24,7 @@ class HeroServiceTest {
     @InjectMocks
     private HeroUtils heroUtils;
     @Mock
-    private HeroHardCodedRepository repository;
+    private HeroRepository repository;
     private List<Hero> heroList = new ArrayList<>();
 
     @BeforeEach
@@ -100,7 +99,7 @@ class HeroServiceTest {
     @DisplayName("save creates a new hero")
     @Order(6)
     void save_ReturnsHeroCreated_WhenSuccesfull() {
-        var heroToSave = Hero.builder().id(10L).name("Bruno").createdAt(LocalDateTime.now()).build();
+        var heroToSave = Hero.builder().id(10L).name("Bruno").build();
 
         BDDMockito.when(repository.save(heroToSave)).thenReturn(heroToSave);
 
@@ -142,7 +141,7 @@ class HeroServiceTest {
         heroToUpdate.setName("Bruno");
 
         BDDMockito.when(repository.findById(heroToUpdate.getId())).thenReturn(Optional.of(heroToUpdate));
-        BDDMockito.doNothing().when(repository).update(heroToUpdate);
+        BDDMockito.when(repository.save(heroToUpdate)).thenReturn(heroToUpdate);
 
         service.update(heroToUpdate);
 

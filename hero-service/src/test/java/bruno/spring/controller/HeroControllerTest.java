@@ -3,8 +3,7 @@ package bruno.spring.controller;
 import bruno.spring.commons.FileUtils;
 import bruno.spring.commons.HeroUtils;
 import bruno.spring.domain.Hero;
-import bruno.spring.repository.HeroData;
-import bruno.spring.repository.HeroHardCodedRepository;
+import bruno.spring.repository.HeroRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,13 +17,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,14 +36,13 @@ class HeroControllerTest {
     private static final String URI = "/v1/heroes";
     @Autowired
     private MockMvc mockMvc;
-    @MockitoBean
-    private HeroData heroData;
     @Autowired
     private FileUtils fileUtils;
     @Autowired
     private HeroUtils heroUtils;
-    @MockitoSpyBean
-    private HeroHardCodedRepository repository;
+
+    @MockitoBean
+    private HeroRepository repository;
     private List<Hero> heroList = new ArrayList<>();
 
 
@@ -59,8 +55,8 @@ class HeroControllerTest {
     @Test
     @DisplayName("GET v1/heroes findAll returns a list with all heroes when name is null")
     @Order(1)
-    void findAll_ReturnsAllHeroes_WhenNameIsNull() throws Exception {
-        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
+    void findAllHeroes_ReturnsAllHeroes_WhenNameIsNull() throws Exception {
+        BDDMockito.when(repository.findAll()).thenReturn(heroList);
         String response = fileUtils.readResourceFile("hero/get-hero-null-name-200.json");
         mockMvc.perform(MockMvcRequestBuilders.get(URI))
                 .andDo(MockMvcResultHandlers.print())
@@ -71,10 +67,11 @@ class HeroControllerTest {
     @Test
     @DisplayName("GET v1/heroes?name=Hulk findAll returns an one-object list when hero is found")
     @Order(2)
-    void findAll_ReturnsHeroFound_WhenNameIsFound() throws Exception {
-        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
+    void findAllHeroes_ReturnsHeroFound_WhenNameIsFound() throws Exception {
         String response = fileUtils.readResourceFile("hero/get-hero-hulk-name-200.json");
-        var name = heroList.getFirst().getName();
+        var name = "Hulk";
+        var hulk = heroList.stream().filter(hero -> hero.getName().equals(name)).findFirst().orElse(null);
+        BDDMockito.when(repository.findByName(name)).thenReturn(Collections.singletonList(hulk));
 
         mockMvc.perform(MockMvcRequestBuilders.get(URI).param("name", name))
                 .andDo(MockMvcResultHandlers.print())
@@ -85,12 +82,10 @@ class HeroControllerTest {
     @Test
     @DisplayName("GET v1/heroes?=x returns an empty list when hero is not found")
     @Order(3)
-    void findAll_ReturnsEmptyList_WhenNameIsNotFound() throws Exception {
-        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
+    void findAllHeroes_ReturnsEmptyList_WhenNameIsNotFound() throws Exception {
         String response = fileUtils.readResourceFile("hero/get-hero-empty-200.json");
-        var name = "x";
 
-        mockMvc.perform(MockMvcRequestBuilders.get(URI).param("name", name))
+        mockMvc.perform(MockMvcRequestBuilders.get(URI).param("name", "x"))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().json(response));
@@ -99,10 +94,11 @@ class HeroControllerTest {
     @Test
     @DisplayName("GET v1/heroes/1 returns a hero when id is found")
     @Order(4)
-    void getById_ReturnsEmptyList_WhenNameIsNotFound() throws Exception {
-        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
+    void getById_ReturnsFoundHero_WhenIdIsFound() throws Exception {
         String response = fileUtils.readResourceFile("hero/get-hero-by-id-200.json");
-        var id = heroList.getFirst().getId();
+        var id = 1L;
+        var foundHero = heroList.stream().filter(hero -> hero.getId().equals(id)).findFirst();
+        BDDMockito.when(repository.findById(id)).thenReturn(foundHero);
 
         mockMvc.perform(MockMvcRequestBuilders.get(URI + "/{id}", id))
                 .andDo(MockMvcResultHandlers.print())
@@ -114,10 +110,8 @@ class HeroControllerTest {
     @DisplayName("GET v1/heroes/99 throws NotFound 404 when hero is not found")
     @Order(5)
     void getById_ThrowsNotFound_WhenNameIsNotFound() throws Exception {
-        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
         String response = fileUtils.readResourceFile("hero/get-hero-by-id-404.json");
         var id = 99L;
-
 
         mockMvc.perform(MockMvcRequestBuilders.get(URI + "/{id}", id))
                 .andDo(MockMvcResultHandlers.print())
@@ -129,9 +123,9 @@ class HeroControllerTest {
     @DisplayName("POST v1/heroes creates a hero when id is found")
     @Order(6)
     void save_ReturnsHeroCreated_WhenSuccesfull() throws Exception {
-        String request = fileUtils.readResourceFile("hero/post-request-hero-200.json");
-        String response = fileUtils.readResourceFile("hero/post-response-hero-201.json");
-        var heroToSave = Hero.builder().id(99L).name("Thor").createdAt(LocalDateTime.now()).build();
+        var request = fileUtils.readResourceFile("hero/post-request-hero-200.json");
+        var response = fileUtils.readResourceFile("hero/post-response-hero-201.json");
+        var heroToSave = Hero.builder().id(99L).name("Thor").build();
 
         BDDMockito.when(repository.save(ArgumentMatchers.any())).thenReturn(heroToSave);
 
@@ -149,9 +143,9 @@ class HeroControllerTest {
     @DisplayName("delete removes a hero when found")
     @Order(7)
     void delete_RemovesHero_WhenFound() throws Exception {
-        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
-
         var id = heroList.getFirst().getId();
+        var foundHero = heroList.stream().filter(hero -> hero.getId().equals(id)).findFirst();
+        BDDMockito.when(repository.findById(id)).thenReturn(foundHero);
 
         mockMvc.perform(MockMvcRequestBuilders.delete(URI + "/{id}", id))
                 .andDo(MockMvcResultHandlers.print())
@@ -162,9 +156,10 @@ class HeroControllerTest {
     @DisplayName("delete throws NotFound when hero is not found")
     @Order(8)
     void delete_ThrowsNotFound_WhenHeroIsNotFound() throws Exception {
-        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
         String response = fileUtils.readResourceFile("hero/delete-hero-by-id-404.json");
         var id = 123L;
+        var foundHero = heroList.stream().filter(hero -> hero.getId().equals(id)).findFirst();
+        BDDMockito.when(repository.findById(id)).thenReturn(foundHero);
 
         mockMvc.perform(MockMvcRequestBuilders.delete(URI + "/{id}", id))
                 .andDo(MockMvcResultHandlers.print())
@@ -176,7 +171,10 @@ class HeroControllerTest {
     @DisplayName("PUT v1/heroes updates hero in the list")
     @Order(9)
     void update_UpdatesHero_WhenFound() throws Exception {
-        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
+        var id = heroList.getFirst().getId();
+        var foundHero = heroList.stream().filter(hero -> hero.getId().equals(id)).findFirst();
+
+        BDDMockito.when(repository.findById(id)).thenReturn(foundHero);
 
         String request = fileUtils.readResourceFile("hero/put-request-hero-200.json");
 
@@ -192,7 +190,6 @@ class HeroControllerTest {
     @DisplayName("PUT v1/heroes throws NotFound when hero is not found")
     @Order(10)
     void update_ThrowsNotFound_WhenHeroIsNotFound() throws Exception {
-        BDDMockito.when(heroData.getHeroes()).thenReturn(heroList);
         String request = fileUtils.readResourceFile("hero/put-request-hero-404.json");
         String response = fileUtils.readResourceFile("hero/put-hero-by-id-404.json");
 

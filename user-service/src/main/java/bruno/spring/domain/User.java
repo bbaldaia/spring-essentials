@@ -2,7 +2,7 @@ package bruno.spring.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-
+@With
 @Getter
 @Setter
 @Builder
@@ -23,3 +23,4 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 }
+

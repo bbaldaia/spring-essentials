@@ -1,7 +1,6 @@
 package bruno.spring.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import bruno.spring.domain.User;
 import bruno.spring.request.UserPostRequest;
@@ -14,7 +13,6 @@ import java.util.List;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
 
-//    @Mapping(target = "id", expression = "java(java.util.concurrent.ThreadLocalRandom.current().nextLong(100))")
     User toUser(UserPostRequest userPostRequest);
 
     User toUser(UserPutRequest userPutRequest);

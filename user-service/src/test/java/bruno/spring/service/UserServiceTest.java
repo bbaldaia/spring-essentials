@@ -1,5 +1,6 @@
 package bruno.spring.service;
 
+import bruno.spring.exception.InvalidEmailException;
 import bruno.spring.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
@@ -116,6 +117,7 @@ class UserServiceTest {
                 .build();
 
         BDDMockito.when(repository.save(userToCreate)).thenReturn(userToCreate);
+        BDDMockito.when(repository.findByEmail(userToCreate.getEmail())).thenReturn(Optional.empty());
 
         var createdUser = service.create(userToCreate);
 
@@ -153,11 +155,13 @@ class UserServiceTest {
     @Order(9)
     @DisplayName("update changes user data when found")
     void update_UpdatesUser_WhenUserIsFound() {
-        var expectedUser = userList.getFirst();
-        expectedUser.setFirstName("Random Name");
+        var expectedUser = userList.getFirst().withFirstName("Random Name");
 
         BDDMockito.when(repository.findById(expectedUser.getId()))
                 .thenReturn(Optional.of(expectedUser));
+
+        BDDMockito.when(repository.findByEmailAndIdNot(expectedUser.getEmail(), expectedUser.getId()))
+                .thenReturn(Optional.empty());
 
         BDDMockito.when(repository.save(expectedUser)).thenReturn(expectedUser);
 
@@ -177,5 +181,38 @@ class UserServiceTest {
         Assertions.assertThatException()
                 .isThrownBy(() -> service.update(expectedUser))
                 .isInstanceOf(ResponseStatusException.class);
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("update throws InvalidEmailException (status 400) when e-mail is already in use")
+    void update_ThrowsInvalidEmailException_WhenEmailAlreadyExists() {
+        var savedUser = userList.getLast();
+        var expectedUser = userList.getFirst().withEmail(savedUser.getEmail());
+
+        BDDMockito.when(repository.findById(expectedUser.getId()))
+                .thenReturn(Optional.of(expectedUser));
+
+        BDDMockito.when(repository.findByEmailAndIdNot(expectedUser.getEmail(), expectedUser.getId()))
+                        .thenReturn(Optional.of(savedUser));
+
+        Assertions.assertThatException()
+                .isThrownBy(() -> service.update(expectedUser))
+                .isInstanceOf(InvalidEmailException.class);
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("create throws InvalidEmailException (status 400) when e-mail is already in use")
+    void create_ThrowsInvalidEmailException_WhenEmailAlreadyExists() {
+        var savedUser = userList.getLast();
+        var userToCreate = userList.getFirst().withEmail(savedUser.getEmail());
+
+        BDDMockito.when(repository.findByEmail(userToCreate.getEmail()))
+                .thenReturn(Optional.of(savedUser));
+
+        Assertions.assertThatException()
+                .isThrownBy(() -> service.create(userToCreate))
+                .isInstanceOf(InvalidEmailException.class);
     }
 }

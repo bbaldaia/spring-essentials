@@ -1,6 +1,7 @@
 package bruno.spring.service;
 
 import bruno.spring.domain.User;
+import bruno.spring.exception.InvalidEmailException;
 import bruno.spring.exception.NotFoundException;
 import bruno.spring.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class UserService {
     }
 
     public User create(User user) {
+        assertEmailExists(user.getEmail());
         return repository.save(user);
     }
 
@@ -34,7 +36,19 @@ public class UserService {
 
     public void update(User user) {
         findById(user.getId());
-
+        assertEmailExists(user.getEmail(), user.getId());
         repository.save(user);
+    }
+
+    public void assertEmailExists(String email) {
+        repository.findByEmail(email).ifPresent(user -> throwEmailExistsException());
+    }
+
+    public void assertEmailExists(String email, Long id) {
+        repository.findByEmailAndIdNot(email, id).ifPresent(user -> throwEmailExistsException());
+    }
+
+    private void throwEmailExistsException() {
+        throw new InvalidEmailException("E-mail already exists");
     }
 }

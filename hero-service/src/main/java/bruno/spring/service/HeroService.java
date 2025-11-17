@@ -2,7 +2,7 @@ package bruno.spring.service;
 
 import bruno.spring.domain.Hero;
 import bruno.spring.exception.NotFoundException;
-import bruno.spring.repository.HeroHardCodedRepository;
+import bruno.spring.repository.HeroRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class HeroService {
-    private final HeroHardCodedRepository repository;
+    private final HeroRepository repository;
 
     public List<Hero> findAll(String name) {
         return name == null ? repository.findAll() : repository.findByName(name);
@@ -33,7 +33,6 @@ public class HeroService {
 
     public void update(Hero heroToUpdate) {
         var hero = findByIdOrThrowNotFound(heroToUpdate.getId());
-        heroToUpdate.setCreatedAt(hero.getCreatedAt());
-        repository.update(heroToUpdate);
+        repository.save(heroToUpdate);
     }
 }

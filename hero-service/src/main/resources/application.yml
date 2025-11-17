@@ -1,8 +1,19 @@
 spring:
+  config:
+    import: optional:classpath:.env[.properties]
   application:
     name: hero-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/hero_service?createDatabaseIfNotExist=true
+    username: ${ENV_ROOT_USER}
+    password: ${ENV_ROOT_PASSWORD}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
 
 server:
+  port: 8080
   error:
     include-stacktrace: on_param
   serverlet:
@@ -11,8 +22,3 @@ server:
 logging:
   level:
     bruno.spring: debug
-
-database:
-  url: ${DB_URL:localhost}:${DB_PORT:3306}
-  username: ${LOCAL_USERNAME:default}
-  password: ${LOCAL_PASSWORD:default}

@@ -1,21 +1,22 @@
 package bruno.spring.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import lombok.*;
+
 
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
 public class Hero {
     @EqualsAndHashCode.Include
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @JsonProperty("hero_name")
+    @Column(nullable = false)
     private String name;
-    private LocalDateTime createdAt;
 }

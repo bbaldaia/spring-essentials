@@ -14,7 +14,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -22,8 +21,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import bruno.spring.commons.FileUtils;
 import bruno.spring.commons.UserUtils;
 import bruno.spring.domain.User;
-import bruno.spring.repository.UserData;
-import bruno.spring.repository.UserHardcodedRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,8 +36,6 @@ class UserControllerTest {
     private static final String URI = "/v1/users";
     @Autowired
     private MockMvc mockMvc;
-    @MockitoBean
-    private UserData userData;
     @MockitoBean
     private UserRepository repository;
     private List<User> userList = new ArrayList<>();
@@ -88,7 +83,6 @@ class UserControllerTest {
     @Order(3)
     @DisplayName("GET v1/users?firstName=x findAll returns an empty list when first name is not found")
     void findAll_ReturnsEmptyList_WhenFirstNameIsNotFound() throws Exception {
-        BDDMockito.when(userData.getUsers()).thenReturn(userList);
         String response = fileUtils.readResourceFile("user/get-user-empty-200.json");
 
         mockMvc.perform(MockMvcRequestBuilders.get(URI).param("firstName", "x"))
@@ -117,7 +111,6 @@ class UserControllerTest {
     @Order(5)
     @DisplayName("GET v1/users/99 findAll throws NotFound (status 404) when id is not found")
     void findById_ThrowsNotFound_WhenIsNotFound() throws Exception {
-        BDDMockito.when(userData.getUsers()).thenReturn(userList);
         String response = fileUtils.readResourceFile("user/get-user-by-id-404.json");
 
         mockMvc.perform(MockMvcRequestBuilders.get(URI + "/{id}", 99L))
@@ -163,7 +156,6 @@ class UserControllerTest {
     @Order(8)
     @DisplayName("DELETE v1/users/99 throws NotFound (status 404) when user is not found")
     void delete_ThrowsNotFound_WhenNotFound() throws Exception {
-        BDDMockito.when(userData.getUsers()).thenReturn(userList);
         String response = fileUtils.readResourceFile("user/delete-user-by-id-404.json");
 
         mockMvc.perform(MockMvcRequestBuilders.delete(URI + "/{id}", 99L))
@@ -193,7 +185,6 @@ class UserControllerTest {
     @Order(10)
     @DisplayName("UPDATE v1/users throws NotFound (status 404) when user is not found")
     void update_ThrowsNotFound_WhenNotFound() throws Exception {
-        BDDMockito.when(userData.getUsers()).thenReturn(userList);
         String request = fileUtils.readResourceFile("user/put-request-user-404.json");
         String response = fileUtils.readResourceFile("user/put-user-by-id-404.json");
 
